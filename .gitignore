@@ -1,0 +1,19 @@
+# Ignore node_modules
+node_modules/
+
+# Ignore logs
+logs/
+*.log
+
+# Ignore environment files
+.env
+
+# Ignore Docker-related files
+docker-compose.override.yml
+*.pid
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+data/
