@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask Docker Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .info-box {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .api-links {
+            margin-top: 30px;
+        }
+        .api-links a {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .api-links a:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐳 Flask Docker Demo</h1>
+            <p>歡迎使用容器化的 Flask 應用程式！</p>
+        </div>
+        
+        <div class="info-box">
+            <strong>容器主機名稱：</strong> {{ hostname }}
+        </div>
+
+        <div class="info-box">
+            <strong>容器 IP 地址：</strong> {{ container_ip }}
+        </div>        
+
+        <div class="info-box">
+            <strong>容器 ID：</strong> {{ container_id }}
+        </div>
+
+        <div class="info-box">
+            <strong>環境變數（FLASK_ENV）：</strong> {{ flask_env }}
+        </div>
+        
+        <div class="info-box">
+            <strong>當前時間：</strong> {{ timestamp }}
+        </div>
+        
+        <div class="api-links">
+            <h3>API 端點測試：</h3>
+            <a href="/health" target="_blank">健康檢查</a>
+            <a href="/api/info" target="_blank">應用資訊</a>
+        </div>
+        
+        <div style="margin-top: 30px; text-align: center; color: #7f8c8d;">
+            <p>🎉 恭喜！您已成功建立並運行了自定義的 Docker 容器</p>
+        </div>
+    </div>
+</body>
+</html>

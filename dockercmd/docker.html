@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>歡迎 MIS 開發人員學習基礎 Docker 實作教學</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: "Noto Sans TC", Arial, sans-serif; margin: 0; background: #f7f7f7; color: #222; }
+    header, main, footer { max-width: 800px; margin: 24px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 32px; }
+    h1, h2, h3 { color: #1565c0; }
+    table { border-collapse: collapse; width: 100%; margin-bottom: 24px; }
+    th, td { border: 1px solid #bbb; padding: 8px 12px; text-align: left; }
+    th { background: #e3f2fd; }
+    ul, ol { margin-left: 24px; }
+    .section { margin-bottom: 32px; }
+  /* ===========================
+     講師資訊區塊美化樣式
+     =========================== */
+  .instructor-section {
+    /* 漸層背景與陰影 */
+    background: linear-gradient(120deg, #e3f2fd 0%, #bbdefb 100%);
+    border-radius: 18px;
+    box-shadow: 0 6px 24px #1976d21a, 0 1.5px 6px #1976d233;
+    margin: 36px 0 32px 0;
+    padding: 32px 24px 28px 24px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeInInstructor 1.2s cubic-bezier(.6,.1,.3,1);
+  }
+  /* 頭像樣式 */
+  .instructor-avatar {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    border: 4px solid #fff;
+    box-shadow: 0 2px 12px #1976d255;
+    object-fit: cover;
+    background: #fff;
+    animation: avatarPop 1.1s cubic-bezier(.6,.1,.3,1);
+  }
+  /* 內容區塊 */
+  .instructor-info {
+    flex: 1;
+  }
+  .instructor-name {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #1976d2;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .instructor-icon {
+    font-size: 1.3em;
+    color: #ff9800;
+    animation: iconSpin 2.5s linear infinite;
+  }
+  .instructor-bio {
+    margin-top: 8px;
+    font-size: 1.08em;
+    color: #333;
+    line-height: 1.7;
+    text-shadow: 0 1px 0 #fff8;
+  }
+  .instructor-slogan {
+    margin-top: 10px;
+    font-size: 1.1em;
+    color: #0288d1;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    animation: sloganFade 2.2s cubic-bezier(.6,.1,.3,1);
+  }
+  /* icon 動畫 */
+  @keyframes iconSpin {
+    0% { transform: rotate(0deg);}
+    100% { transform: rotate(360deg);}
+  }
+  /* 區塊淡入動畫 */
+  @keyframes fadeInInstructor {
+    0% { opacity: 0; transform: translateY(40px);}
+    100% { opacity: 1; transform: translateY(0);}
+  }
+  /* 頭像彈跳動畫 */
+  @keyframes avatarPop {
+    0% { transform: scale(0.7);}
+    70% { transform: scale(1.1);}
+    100% { transform: scale(1);}
+  }
+  /* slogan 淡入動畫 */
+  @keyframes sloganFade {
+    0% { opacity: 0;}
+    100% { opacity: 1;}
+  }
+  </style>
+</head>
+<body>
+  <!-- 歡迎詞區塊 -->
+  <header class="section">
+    <h1>歡迎 MIS 開發人員參加<br>「基礎 Docker 實作教學」</h1>
+    <p>很高興您加入本次課程，一同探索現代軟體開發不可或缺的容器化技術！</p>
+  </header>
+
+  <main>
+    <!-- 課程簡介區塊 -->
+    <section class="section">
+      <h2>課程簡介</h2>
+      <p>
+        Docker 已成為現代軟體開發的標準工具，能夠協助團隊建立一致的開發環境、加速部署流程、優化資源利用率，並支援微服務架構與 DevOps 實踐。<br>
+        根據 2023 年調查，超過 70% 企業已採用容器技術，學習 Docker 是現代開發者不可或缺的技能。
+      </p>
+    </section>
+
+    <!-- 課程資訊區塊 -->
+    <section class="section">
+      <h2>課程資訊</h2>
+      <ul>
+        <li><strong>主題：</strong>DMIS 基礎 Docker 實作教學</li>
+        <li><strong>時間：</strong>2小時</li>
+        <li><strong>地點：</strong>[線上會議連結]</li>
+        <!-- 講師資訊已移至下方獨立區塊 -->
+      </ul>
+    </section>
+
+    <!-- ===========================
+         講師資訊區塊（美化版）
+         =========================== -->
+    <section class="instructor-section">
+      <!-- 講師頭像，可替換為真實照片 -->
+      <img class="instructor-avatar" src="https://yt3.googleusercontent.com/h9s5JbpnRsfaiXnOGZA4QiD7MYPSQW37EtkxbG0APqR3QdkAGaapyqp4BwS7nEXWPTazF4A8cw=s900-c-k-c0x00ffffff-no-rj" alt="鄭元森頭像">
+      <div class="instructor-info">
+        <div class="instructor-name">
+          <span class="instructor-icon" title="Docker 講師">🎓</span>
+          鄭元森 (Sam Cheng)
+        </div>
+        <div class="instructor-bio">
+          CIM 系統整合部資深經理，專注於AI、CIM 系統開發、雲端架構、DevOps 與自動化，熱愛分享技術與實戰經驗，協助團隊成長。
+        </div>
+        <div class="instructor-slogan">
+          「讓每位開發者都能輕鬆上手 Docker，打造高效團隊！」 🚀
+        </div>
+      </div>
+    </section>
+
+    <!-- 課程目標區塊 -->
+    <section class="section">
+      <h2>課程目標</h2>
+      <p>
+        本課程將帶領學員透過 Play with Docker 平台，無需本地安裝即可實際操作 Docker，掌握容器化技術基礎，並能應用於 DMIS 系統開發。
+      </p>
+    </section>
+
+    <!-- 課程時間表區塊 -->
+    <section class="section">
+      <h2>課程時間表</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>時段</th>
+            <th>內容</th>
+            <th>時間</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>第一部分</td>
+            <td>
+              快速入門：<br>
+              - 平台登入與介面熟悉<br>
+              - Docker 核心概念簡介<br>
+              - 第一個容器運行示範
+            </td>
+            <td>15分鐘</td>
+          </tr>
+          <tr>
+            <td>第二部分</td>
+            <td>
+              基本 Docker 指令實戰：<br>
+              - 映像檔與容器管理指令<br>
+              - 實用指令與技巧
+            </td>
+            <td>30分鐘</td>
+          </tr>
+          <tr>
+            <td>第三部分</td>
+            <td>
+              Dockerfile 實作：<br>
+              - 基本結構與常用指令<br>
+              - 建立自定義 Web 應用
+            </td>
+            <td>25分鐘</td>
+          </tr>
+          <tr>
+            <td>第四部分</td>
+            <td>
+              Docker Compose 多容器應用：<br>
+              - 基本概念與語法<br>
+              - 建立 Web + 資料庫應用
+            </td>
+            <td>30分鐘</td>
+          </tr>
+          <tr>
+            <td>第五部分</td>
+            <td>
+              課程總結與進階學習資源
+            </td>
+            <td>15分鐘</td>
+          </tr>
+          <tr>
+            <td>問答環節</td>
+            <td>現場 Q&A</td>
+            <td>5分鐘</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 課前準備事項區塊 -->
+    <section class="section">
+      <h2>課前準備事項</h2>
+      <ol>
+        <li>請先註冊 Docker Hub 帳號（用於登入 Play with Docker）</li>
+        <li>準備瀏覽器（建議使用 Chrome 或 Firefox）</li>
+      </ol>
+    </section>
+  </main>
+
+  <footer style="text-align:center; color:#888; font-size:0.95em;">
+    <!-- 頁尾區塊 -->
+    <p>© 2025 基礎 Docker 實作教學 | MIS 開發團隊</p>
+  </footer>
+</body>
+</html>
