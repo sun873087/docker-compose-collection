@@ -57,7 +57,7 @@ services:
       - EXECUTIONS_MODE=queue
       - QUEUE_BULL_REDIS_HOST=redis
       - QUEUE_HEALTH_CHECK_ACTIVE=true
-      - N8N_LICENSE_KEY=${N8N_LICENSE_KEY}
+      - N8N_LICENSE_CERT=${N8N_LICENSE_CERT}
       - N8N_ENCRYPTION_KEY=${ENCRYPTION_KEY}
       - N8N_HOST=your.domain.com
       - N8N_PORT=5678

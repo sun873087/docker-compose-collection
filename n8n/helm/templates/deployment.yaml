@@ -53,7 +53,7 @@ spec:
               value: {{ .Values.redis.external.host }}
             - name: QUEUE_HEALTH_CHECK_ACTIVE  # 啟用佇列健康檢查
               value: "true"
-            - name: N8N_LICENSE_KEY      # n8n 授權金鑰
+            - name: N8N_LICENSE_CERT      # n8n 授權金鑰
               value: {{ .Values.n8n.licenseKey | quote }}
             - name: N8N_ENCRYPTION_KEY      # n8n 資料加密金鑰
               value: {{ .Values.n8n.encryptionKey }}
