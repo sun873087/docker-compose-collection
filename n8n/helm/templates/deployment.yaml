@@ -1,0 +1,106 @@
+# n8n 主要應用程式 Deployment 配置
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "n8n.fullname" . }}
+  labels:
+    {{- include "n8n.labels" . | nindent 4 }}
+    app.kubernetes.io/component: main  # 標記為主要元件
+spec:
+  replicas: {{ .Values.replicaCount }}  # 副本數量
+  selector:
+    matchLabels:
+      {{- include "n8n.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: main
+  template:
+    metadata:
+      labels:
+        {{- include "n8n.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: main
+    spec:
+      {{- with .Values.podSecurityContext }}
+      securityContext:  # Pod 安全上下文
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}  # n8n 主要容器
+          {{- with .Values.securityContext }}
+          securityContext:  # 容器安全上下文
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"  # n8n 映像檔
+          imagePullPolicy: {{ .Values.image.pullPolicy }}  # 映像檔拉取策略
+          ports:
+            - name: http
+              containerPort: 5678  # n8n Web 介面連接埠
+              protocol: TCP
+          env:  # 環境變數配置
+            - name: DB_TYPE              # 資料庫類型
+              value: "postgresdb"
+            - name: DB_POSTGRESDB_HOST   # PostgreSQL 主機名稱
+              value: {{ .Values.postgresql.external.host }}
+            - name: DB_POSTGRESDB_PORT   # PostgreSQL 連接埠
+              value: {{ .Values.postgresql.external.port | quote }}
+            - name: DB_POSTGRESDB_DATABASE  # PostgreSQL 資料庫名稱
+              value: {{ .Values.postgresql.external.database }}
+            - name: DB_POSTGRESDB_USER   # PostgreSQL 使用者名稱
+              value: {{ .Values.postgresql.external.username }}
+            - name: DB_POSTGRESDB_PASSWORD  # PostgreSQL 密碼
+              value: {{ .Values.postgresql.external.password }}
+            - name: EXECUTIONS_MODE      # 執行模式 (佇列模式)
+              value: "queue"
+            - name: QUEUE_BULL_REDIS_HOST    # Redis 主機名稱 (用於佇列)
+              value: {{ .Values.redis.external.host }}
+            - name: QUEUE_HEALTH_CHECK_ACTIVE  # 啟用佇列健康檢查
+              value: "true"
+            - name: N8N_LICENSE_KEY      # n8n 授權金鑰
+              value: {{ .Values.n8n.licenseKey | quote }}
+            - name: N8N_ENCRYPTION_KEY      # n8n 資料加密金鑰
+              value: {{ .Values.n8n.encryptionKey }}
+            - name: N8N_HOST               # n8n 主機名稱
+              value: {{ .Values.n8n.host }}
+            - name: N8N_PORT               # n8n 連接埠
+              value: {{ .Values.n8n.port | quote }}
+            - name: N8N_PROTOCOL           # n8n 通訊協定
+              value: {{ .Values.n8n.protocol }}
+            - name: WEBHOOK_URL            # Webhook URL
+              value: {{ .Values.n8n.webhookUrl }}
+          volumeMounts:  # 掛載點配置
+            - name: n8n-storage
+              mountPath: /home/node/.n8n  # n8n 資料目錄
+          livenessProbe:  # 存活檢查
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 30  # 初始延遲 30 秒
+            periodSeconds: 10        # 每 10 秒檢查一次
+          readinessProbe:  # 就緒檢查
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10  # 初始延遲 10 秒
+            periodSeconds: 5         # 每 5 秒檢查一次
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:  # 資料卷配置
+        - name: n8n-storage
+          {{- if .Values.persistence.enabled }}  # 如果啟用持久化儲存
+          persistentVolumeClaim:
+            claimName: {{ include "n8n.fullname" . }}-storage  # 使用 PVC
+          {{- else }}  # 否則使用臨時儲存
+          emptyDir: {}
+          {{- end }}
+      {{- with .Values.nodeSelector }}  # 節點選擇器
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}  # Pod 親和性設定
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}  # Pod 容忍度設定
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

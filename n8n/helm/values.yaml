@@ -1,0 +1,90 @@
+# n8n Helm Chart 預設配置值
+# 主要應用程式副本數量
+replicaCount: 1
+
+# Docker 映像檔配置
+image:
+  repository: docker.n8n.io/n8nio/n8n  # n8n 官方映像檔倉庫
+  pullPolicy: IfNotPresent             # 映像檔拉取策略
+  tag: "latest"                        # 映像檔標籤版本
+
+# 名稱覆寫設定
+nameOverride: ""      # 覆寫 chart 名稱
+fullnameOverride: ""  # 覆寫完整名稱
+
+# PostgreSQL 資料庫配置 (使用現有外部 PostgreSQL)
+postgresql:
+  enabled: false      # 不部署內建 PostgreSQL
+  external:           # 外部 PostgreSQL 連線設定
+    host: "postgres"         # 資料庫主機名稱
+    port: 5432              # 資料庫連接埠
+    database: "n8n"         # 資料庫名稱
+    username: "n8n"         # 資料庫使用者名稱
+    password: "n8npassword" # 資料庫密碼
+
+# Redis 快取配置 (使用現有外部 Redis)
+redis:
+  enabled: false      # 不部署內建 Redis
+  external:           # 外部 Redis 連線設定
+    host: "redis"    # Redis 主機名稱
+    port: 6379       # Redis 連接埠
+
+# n8n 應用程式配置
+n8n:
+  encryptionKey: "2315036e-002c-4a08-b2fb-9440b711130c"     # 資料加密金鑰
+  host: "your.domain.com"               # 應用程式主機名稱
+  port: 5678                            # 應用程式連接埠
+  protocol: "https"                     # 連線協定
+  webhookUrl: "https://your.domain.com/" # Webhook URL
+
+# Worker 工作程序配置
+worker:
+  enabled: true       # 啟用 worker 服務
+  replicaCount: 1     # worker 副本數量
+
+# Webhook 服務配置
+webhook:
+  enabled: true       # 啟用 webhook 服務
+  replicaCount: 1     # webhook 副本數量
+
+# Kubernetes Service 配置
+service:
+  type: ClusterIP     # 服務類型 (叢集內部)
+  port: 5678          # 服務連接埠
+
+# Ingress 外部存取配置
+ingress:
+  enabled: false             # 預設不啟用 Ingress
+  className: ""              # Ingress 類別名稱
+  annotations: {}            # Ingress 註解
+  hosts:                     # 主機名稱配置
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []                    # TLS 憑證配置
+
+# 持久化儲存配置
+persistence:
+  enabled: true              # 啟用持久化儲存
+  storageClass: ""           # 儲存類別 (空值使用預設)
+  accessMode: ReadWriteOnce  # 存取模式
+  size: 10Gi                 # 儲存大小
+
+# 資源限制與請求
+resources: {}
+
+# 節點選擇器 - 指定 Pod 運行的節點
+nodeSelector: {}
+
+# 容忍度 - 允許 Pod 在有特定汙點的節點上運行
+tolerations: []
+
+# 親和性 - 控制 Pod 的調度偏好
+affinity: {}
+
+# 容器安全上下文
+securityContext: {}
+
+# Pod 安全上下文
+podSecurityContext: {}

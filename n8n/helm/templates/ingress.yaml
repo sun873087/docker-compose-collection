@@ -1,0 +1,42 @@
+{{- if .Values.ingress.enabled -}}  # 如果啟用 Ingress
+# n8n Ingress 配置 - 提供從外部存取 n8n 服務
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "n8n.fullname" . }}
+  labels:
+    {{- include "n8n.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}  # Ingress 註解 (用於 Load Balancer 配置)
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.ingress.className }}  # Ingress 控制器類別
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- end }}
+  {{- if .Values.ingress.tls }}  # TLS/SSL 配置
+  tls:
+    {{- range .Values.ingress.tls }}
+    - hosts:  # TLS 證書適用的主機名稱
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}  # TLS 證書 Secret 名稱
+    {{- end }}
+  {{- end }}
+  rules:  # Ingress 路由規則
+    {{- range .Values.ingress.hosts }}
+    - host: {{ .host | quote }}  # 主機名稱
+      http:
+        paths:  # HTTP 路徑配置
+          {{- range .paths }}
+          - path: {{ .path }}  # URL 路徑
+            pathType: {{ .pathType }}  # 路徑類型 (Prefix/Exact)
+            backend:  # 後端服務配置
+              service:
+                name: {{ include "n8n.fullname" $ }}  # n8n 服務名稱
+                port:
+                  number: {{ $.Values.service.port }}  # 服務連接埠
+          {{- end }}
+    {{- end }}
+{{- end }}  # 結束 Ingress 條件

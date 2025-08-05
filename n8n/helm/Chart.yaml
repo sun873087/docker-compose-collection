@@ -1,0 +1,36 @@
+# Helm Chart API 版本
+apiVersion: v2
+
+# Chart 名稱
+name: n8n
+
+# Chart 描述 - n8n 工作流程自動化平台
+description: A Helm chart for n8n workflow automation
+
+# Chart 類型 - 應用程式類型
+type: application
+
+# Chart 版本
+version: 0.1.0
+
+# 應用程式版本
+appVersion: "latest"
+
+# 官方網站
+home: https://n8n.io/
+
+# 原始碼來源
+sources:
+  - https://github.com/n8n-io/n8n
+
+# 維護者資訊
+maintainers:
+  - name: n8n-team
+    email: support@n8n.io
+
+# 關鍵字標籤
+keywords:
+  - workflow      # 工作流程
+  - automation    # 自動化
+  - n8n          # n8n 平台
+  - integration  # 整合

@@ -1,0 +1,72 @@
+{{- if .Values.worker.enabled }}  # 如果啟用 worker 服務
+# n8n Worker Deployment 配置 - 負責執行工作流程任務
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "n8n.fullname" . }}-worker
+  labels:
+    {{- include "n8n.labels" . | nindent 4 }}
+    app.kubernetes.io/component: worker  # 標記為 worker 元件
+spec:
+  replicas: {{ .Values.worker.replicaCount }}  # Worker 副本數量
+  selector:
+    matchLabels:
+      {{- include "n8n.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: worker
+  template:
+    metadata:
+      labels:
+        {{- include "n8n.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: worker
+    spec:
+      {{- with .Values.podSecurityContext }}
+      securityContext:  # Pod 安全上下文
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}-worker  # Worker 容器
+          {{- with .Values.securityContext }}
+          securityContext:  # 容器安全上下文
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"  # n8n 映像檔
+          imagePullPolicy: {{ .Values.image.pullPolicy }}  # 映像檔拉取策略
+          command: ["n8n", "worker"]  # 以 worker 模式啟動
+          env:  # 環境變數配置
+            - name: DB_TYPE              # 資料庫類型
+              value: "postgresdb"
+            - name: DB_POSTGRESDB_HOST   # PostgreSQL 主機名稱
+              value: {{ .Values.postgresql.external.host }}
+            - name: DB_POSTGRESDB_PORT   # PostgreSQL 連接埠
+              value: {{ .Values.postgresql.external.port | quote }}
+            - name: DB_POSTGRESDB_DATABASE  # PostgreSQL 資料庫名稱
+              value: {{ .Values.postgresql.external.database }}
+            - name: DB_POSTGRESDB_USER   # PostgreSQL 使用者名稱
+              value: {{ .Values.postgresql.external.username }}
+            - name: DB_POSTGRESDB_PASSWORD  # PostgreSQL 密碼
+              value: {{ .Values.postgresql.external.password }}
+            - name: EXECUTIONS_MODE      # 執行模式 (佇列模式)
+              value: "queue"
+            - name: QUEUE_BULL_REDIS_HOST  # Redis 主機名稱 (用於佇列)
+              value: {{ .Values.redis.external.host }}
+            - name: QUEUE_HEALTH_CHECK_ACTIVE  # 啟用佇列健康檢查
+              value: "true"
+            - name: N8N_ENCRYPTION_KEY   # n8n 資料加密金鑰
+              value: {{ .Values.n8n.encryptionKey }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.nodeSelector }}  # 節點選擇器
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}  # Pod 親和性設定
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}  # Pod 容忍度設定
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}  # 結束 worker 服務條件
