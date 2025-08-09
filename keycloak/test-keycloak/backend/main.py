@@ -284,23 +284,54 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-@app.get("/")
+# ============================================================================
+# API 端點定義
+# ============================================================================
+
+@app.get("/", tags=["健康檢查"], summary="服務狀態檢查")
 async def root():
-    """健康檢查端點"""
+    """
+    健康檢查端點
+    
+    用於檢查 API 服務是否正常運行。
+    適用於監控系統、負載均衡器的健康檢查。
+    
+    Returns:
+        dict: 包含服務狀態訊息
+    """
     return {"message": "Keycloak API 測試後端運行中", "status": "OK"}
 
-@app.get("/api/public")
+@app.get("/api/public", tags=["公開 API"], summary="公開端點示範")
 async def public_endpoint():
-    """公開端點，不需要認證"""
+    """
+    公開 API 端點
+    
+    此端點不需要任何認證，任何人都可以訪問。
+    用於測試基本的 API 連接性和 CORS 設定。
+    
+    Returns:
+        dict: 公開訊息和時間戳
+    """
+    import datetime
     return {
         "message": "這是一個公開端點",
         "data": "任何人都可以訪問此端點",
-        "timestamp": "2023-01-01T00:00:00Z"
+        "timestamp": datetime.datetime.now().isoformat()
     }
 
-@app.get("/api/explore-keycloak")
+@app.get("/api/explore-keycloak", tags=["除錯工具"], summary="Keycloak 服務探索")
 async def explore_keycloak():
-    """探索 Keycloak 服務結構"""
+    """
+    Keycloak 服務結構探索工具
+    
+    用於診斷和除錯 Keycloak 連接問題。
+    測試多個不同的 Keycloak URL 和路徑，幫助找出正確的配置。
+    
+    Returns:
+        dict: 包含所有測試結果的詳細資訊
+        
+    注意: 此端點僅用於開發和除錯，生產環境中應該移除
+    """
     results = {}
     base_urls = ["http://localhost:8080", "http://127.0.0.1:8080"]
     
@@ -333,9 +364,22 @@ async def explore_keycloak():
     
     return results
 
-@app.post("/api/debug-token")
+@app.post("/api/debug-token", tags=["除錯工具"], summary="Token 結構分析")
 async def debug_token(token_data: dict):
-    """除錯端點：分析 token 結構"""
+    """
+    JWT Token 結構分析工具
+    
+    解析並顯示 JWT Token 的完整結構，不進行任何驗證。
+    用於診斷 Token 格式問題和理解 Keycloak 配置。
+    
+    Args:
+        token_data (dict): 包含 'token' 字段的 JSON 物件
+        
+    Returns:
+        dict: Token 的 header、payload 和 Keycloak 配置資訊
+        
+    注意: 此端點僅用於開發和除錯，生產環境中應該移除
+    """
     try:
         token = token_data.get("token")
         if not token:
@@ -422,9 +466,22 @@ async def verify_token_basic(credentials: HTTPAuthorizationCredentials = Depends
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-@app.get("/api/test-no-verify")
+@app.get("/api/test-no-verify", tags=["測試端點"], summary="無驗證測試")
 async def test_no_verify_endpoint(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """測試端點，完全不驗證 token，只解析"""
+    """
+    無驗證 Token 測試端點
+    
+    只解析 Token 內容，不進行任何驗證。
+    用於測試 Token 是否能正確從前端傳遞到後端。
+    
+    Args:
+        credentials: Bearer Token 憑證
+        
+    Returns:
+        dict: Token 的原始內容
+        
+    安全等級: 無（僅供測試使用）
+    """
     token = credentials.credentials
     try:
         # 只解析 token，不驗證簽名
@@ -436,9 +493,22 @@ async def test_no_verify_endpoint(credentials: HTTPAuthorizationCredentials = De
     except Exception as e:
         return {"error": f"無法解析 token: {str(e)}"}
 
-@app.get("/api/test-basic")
+@app.get("/api/test-basic", tags=["測試端點"], summary="基本驗證測試")
 async def test_basic_endpoint(payload: Dict[str, Any] = Depends(verify_token_basic)):
-    """基本驗證端點，不驗證簽名但檢查基本信息"""
+    """
+    基本 Token 驗證測試端點
+    
+    執行基本的 Token 驗證，不驗證數位簽名。
+    用於測試 Token 基本格式和過期時間。
+    
+    Args:
+        payload: 經過基本驗證的 Token 負載
+        
+    Returns:
+        dict: 使用者基本資訊和 Token 訊息
+        
+    安全等級: 中等（開發環境可用）
+    """
     return {
         "message": "基本驗證成功（未驗證簽名）",
         "user_id": payload.get("sub"),
@@ -449,9 +519,22 @@ async def test_basic_endpoint(payload: Dict[str, Any] = Depends(verify_token_bas
         "expires_at": payload.get("exp")
     }
 
-@app.get("/api/protected")
+@app.get("/api/protected", tags=["受保護 API"], summary="受保護端點")
 async def protected_endpoint(payload: Dict[str, Any] = Depends(verify_token)):
-    """受保護端點，需要有效的 JWT token"""
+    """
+    受保護 API 端點
+    
+    需要有效的 JWT Token 才能訪問。
+    執行完整的 Token 驗證，包含數位簽名檢查。
+    
+    Args:
+        payload: 經過完整驗證的 Token 負載
+        
+    Returns:
+        dict: 使用者資訊、角色權限和 Token 訊息
+        
+    安全等級: 高（生產環境建議）
+    """
     return {
         "message": "成功訪問受保護端點",
         "user_id": payload.get("sub"),
@@ -465,9 +548,20 @@ async def protected_endpoint(payload: Dict[str, Any] = Depends(verify_token)):
         }
     }
 
-@app.get("/api/user-info")
+@app.get("/api/user-info", tags=["使用者管理"], summary="獲取使用者資訊", response_model=UserInfo)
 async def get_user_info(payload: Dict[str, Any] = Depends(verify_token)) -> UserInfo:
-    """獲取使用者詳細資訊"""
+    """
+    獲取當前使用者詳細資訊
+    
+    從驗證通過的 JWT Token 中提取使用者的基本資訊。
+    適用於使用者配置文件、個人資訊頁面等功能。
+    
+    Args:
+        payload: 經過驗證的 Token 負載
+        
+    Returns:
+        UserInfo: 結構化的使用者資訊物件
+    """
     return UserInfo(
         sub=payload.get("sub"),
         email=payload.get("email"),
@@ -477,9 +571,25 @@ async def get_user_info(payload: Dict[str, Any] = Depends(verify_token)) -> User
         family_name=payload.get("family_name")
     )
 
-@app.get("/api/admin/users")
+@app.get("/api/admin/users", tags=["管理員 API"], summary="獲取所有使用者")
 async def get_users(payload: Dict[str, Any] = Depends(verify_token)):
-    """管理員端點：獲取所有使用者（需要管理員權限）"""
+    """
+    管理員端點：獲取所有使用者
+    
+    需要管理員權限才能訪問。
+    檢查使用者是否具有 'realm-admin' 或 'admin' 角色。
+    
+    Args:
+        payload: 經過驗證的 Token 負載
+        
+    Returns:
+        dict: 管理員操作結果訊息
+        
+    Raises:
+        HTTPException: 403 缺少管理員權限時拋出
+        
+    權限要求: realm-admin 或 admin 角色
+    """
     # 檢查是否有管理員角色
     roles = payload.get("realm_access", {}).get("roles", [])
     if "realm-admin" not in roles and "admin" not in roles:
@@ -494,9 +604,20 @@ async def get_users(payload: Dict[str, Any] = Depends(verify_token)):
         "user_roles": roles
     }
 
-@app.get("/api/token-info")
+@app.get("/api/token-info", tags=["使用者管理"], summary="獲取 Token 詳細資訊")
 async def get_token_info(payload: Dict[str, Any] = Depends(verify_token)):
-    """獲取 token 的詳細資訊"""
+    """
+    獲取當前 Token 的詳細資訊
+    
+    提供 Token 的完整資訊，包含使用者資料、Token 元資料和權限資訊。
+    適用於除錯、權限檢查和安全審計。
+    
+    Args:
+        payload: 經過驗證的 Token 負載
+        
+    Returns:
+        dict: 包含 Token 完整資訊的詳細物件
+    """
     return {
         "token_payload": payload,
         "user_info": {
@@ -520,9 +641,23 @@ async def get_token_info(payload: Dict[str, Any] = Depends(verify_token)):
         }
     }
 
-@app.post("/api/refresh-token")
+@app.post("/api/refresh-token", tags=["認證管理"], summary="刷新 Access Token")
 async def refresh_token(refresh_token: dict):
-    """刷新 token"""
+    """
+    使用 Refresh Token 獲取新的 Access Token
+    
+    當 Access Token 即將過期或已過期時，使用 Refresh Token 獲取新的 Token。
+    這是 JWT 標準的一部分，用於維持長時間的用戶登入狀態。
+    
+    Args:
+        refresh_token (dict): 包含 'refresh_token' 字段的 JSON 物件
+        
+    Returns:
+        dict: 新的 Access Token 和相關資訊
+        
+    Raises:
+        HTTPException: 400 Refresh Token 無效或過期時拋出
+    """
     try:
         data = {
             "grant_type": "refresh_token",
@@ -542,6 +677,18 @@ async def refresh_token(refresh_token: dict):
             detail=f"Token 刷新失敗: {str(e)}"
         )
 
+# ============================================================================
+# 應用程式啟動點
+# ============================================================================
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    
+    # 直接執行時的開發模式配置
+    uvicorn.run(
+        app, 
+        host="0.0.0.0",    # 允許外部訪問
+        port=8000,          # API 服務端口
+        reload=True,        # 開發模式：自動重載
+        log_level="info"    # 日誌等級
+    )
