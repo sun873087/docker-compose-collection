@@ -116,7 +116,29 @@ async def get_public_key():
     - 舊版 Keycloak (相容性支援)
     """
     try:
-        # 策略 1: 嘗試標準 OpenID Connect Discovery
+        # 策略 1: 直接嘗試標準 JWKS 端點
+        # 這是最直接的方式，跳過 OpenID Connect Discovery
+        jwks_urls = []
+        for base_url in KEYCLOAK_URLS:
+            jwks_urls.extend([
+                f"{base_url}/realms/{REALM}/protocol/openid-connect/certs",          # Keycloak 標準 JWKS 端點
+                f"{base_url}/auth/realms/{REALM}/protocol/openid-connect/certs"      # Keycloak 16- 舊版路徑
+            ])
+        
+        for url in jwks_urls:
+            try:
+                print(f"嘗試直接 JWKS 端點: {url}")
+                response = requests.get(url, timeout=5)
+                if response.status_code == 200:
+                    jwks_data = response.json()
+                    if "keys" in jwks_data:
+                        print(f"成功從直接 JWKS 端點獲取: {url}")
+                        return jwks_data
+            except Exception as e:
+                print(f"直接 JWKS 端點失敗: {str(e)}")
+                continue
+        
+        # 策略 2: 嘗試標準 OpenID Connect Discovery（備用）
         # 這是 Keycloak 生產模式的標準做法，提供完整的配置資訊
         openid_urls = []
         for base_url in KEYCLOAK_URLS:
@@ -140,7 +162,7 @@ async def get_public_key():
                 print(f"OpenID 配置失敗: {str(e)}")
                 continue
         
-        # 策略 2: 回退到直接 Realm 端點
+        # 策略 3: 回退到直接 Realm 端點
         # 適用於 Keycloak 開發模式或自定義配置，直接從 realm 資訊獲取公鑰
         print("嘗試舊版 realm 端點獲取公鑰...")
         for base_url in KEYCLOAK_URLS:
