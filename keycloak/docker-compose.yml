@@ -1,50 +1,34 @@
-version: "3.7"
+# docker-compose.yml
+version: '3.9'
 
 services:
-  keycloak:
-    container_name: keycloak_app
-    image: quay.io/keycloak/keycloak:latest
-    restart: always
-    ports:
-      - "8443:8443"
-    volumes:
-      - "/etc/ssl/keycloak/:/etc/x509/https" # map certificates to container
-    environment:
-      KEYCLOAK_ADMIN: ${KEYCLOAK_USER}
-      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_PASSWORD}
-      KC_HOSTNAME: ${KEYCLOAK_URL}
-      KC_DB_URL: jdbc:postgresql://keycloak_postgres:5432/keycloak
-      KC_DB: postgres
-      KC_DB_USERNAME:  ${POSTGRES_USER}
-      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
-      KC_HTTPS_CERTIFICATE_FILE: /etc/x509/https/tls.crt
-      KC_HTTPS_CERTIFICATE_KEY_FILE: /etc/x509/https/tls.key
-    depends_on:
-      - keycloak_postgres
-    networks:
-      - keycloak-network
-    command:
-      - 'start'
-
-  keycloak_postgres:
-    container_name: keycloak_postgres
-    image: postgres:latest
-    restart: always
+  keycloak-db:
+    image: postgres:15
+    container_name: keycloak-db
     environment:
       POSTGRES_DB: keycloak
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_PORT: 5432
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - keycloak-network
+      - db_data:/var/lib/postgresql/data
+    restart: always
 
-
-networks:
-  keycloak-network:
-    name: keycloak-network
-    driver: bridge
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.3
+    container_name: keycloak
+    command: start-dev
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: keycloak
+    ports:
+      - 8080:8080
+    depends_on:
+      - keycloak-db
+    restart: always
 
 volumes:
-  postgres_data:
+  db_data:
